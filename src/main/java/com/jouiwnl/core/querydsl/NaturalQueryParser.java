@@ -28,6 +28,10 @@ public class NaturalQueryParser {
      * @return A BooleanBuilder with the natural filter parsed
      */
     public static <T extends Filterable> BooleanBuilder parse(String filter, Class<T> clazz) {
+        if (filter == null || filter.isEmpty()) {
+            return null;
+        }
+
         List<ComparableExpressionBase> expressions = new ArrayList<>();
 
         try {
@@ -41,9 +45,6 @@ public class NaturalQueryParser {
         String simpleClassName = clazz.getSimpleName().toLowerCase();
         filter = normalizeFilter(filter);
 
-        if (filter == null || filter.isEmpty()) {
-            return null;
-        }
 
         PathBuilder<T> entityPath = new PathBuilder<>(clazz, simpleClassName);
         String[] andFilters = filter.split("(?i)\\s+and\\s+");
@@ -92,7 +93,7 @@ public class NaturalQueryParser {
                 .orElse(null);
 
         String operator = tokens.get(1);
-        String value = tokens.subList(2, tokens.size()).stream().collect(Collectors.joining(""));
+        String value = String.join(" ", tokens.subList(2, tokens.size()));
         BooleanExpression exp = getExpressionPath(value, expression, operator);
 
         if ("OR".equals(operador)) {
@@ -143,23 +144,23 @@ public class NaturalQueryParser {
     private static BooleanExpression getExpression(StringPath path, String operator, String value) {
         switch (operator) {
             case "=":
-                return path.eq(value);
+                return wrapUnaccent(path).containsIgnoreCase(wrapUnaccent(value));
             case "!=":
-                return path.ne(value);
+                return wrapUnaccent(path).ne(wrapUnaccent(value));
             case ">":
-                return path.gt(value);
+                return wrapUnaccent(path).gt(wrapUnaccent(value));
             case ">=":
-                return path.goe(value);
+                return wrapUnaccent(path).goe(wrapUnaccent(value));
             case "<":
-                return path.lt(value);
+                return wrapUnaccent(path).lt(wrapUnaccent(value));
             case "<=":
-                return path.loe(value);
+                return wrapUnaccent(path).loe(wrapUnaccent(value));
             case "in":
                 String[] values = value.split(",");
-                return path.in(Arrays.stream(values).map(String::trim).collect(Collectors.toList()));
+                return wrapUnaccent(path).in(values);
             case "not in":
                 String[] notInValues = value.split(",");
-                return path.notIn(Arrays.stream(notInValues).map(String::trim).collect(Collectors.toList()));
+                return wrapUnaccent(path).notIn(notInValues);
             default:
                 throw new IllegalArgumentException("Invalid operator: " + operator);
         }
@@ -254,6 +255,10 @@ public class NaturalQueryParser {
         filter = filter.replaceAll("\\(", "").replaceAll("\\)", "");
 
         return filter;
+    }
+
+    private static StringExpression wrapUnaccent(Object value) {
+        return Expressions.stringTemplate("unaccent({0})", value);
     }
 
 }
