@@ -1,0 +1,8 @@
+com/jouiwnl/core/querydsl/Filterable.class
+com/jouiwnl/core/utils/CoreUtils.class
+com/jouiwnl/core/querydsl/NaturalQueryParser.class
+com/jouiwnl/core/repository/BasicRepository.class
+com/jouiwnl/core/dto/DynamicDto.class
+com/jouiwnl/core/CoreApplication.class
+com/jouiwnl/core/dto/DatabaseEntity.class
+com/jouiwnl/core/utils/HibernateUtils.class
