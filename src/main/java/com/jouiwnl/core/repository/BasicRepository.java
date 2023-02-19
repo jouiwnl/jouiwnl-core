@@ -1,5 +1,8 @@
 package com.jouiwnl.core.repository;
 
+import com.jouiwnl.core.querydsl.Filterable;
+import com.jouiwnl.core.querydsl.NaturalQueryParser;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.PathBuilderFactory;
 import com.querydsl.jpa.JPQLTemplates;
@@ -33,6 +36,13 @@ public class BasicRepository {
 
     public <T> List<T> findAll(final Class<T> entityClass, final Predicate... where) {
         JPAQuery<T> query = new JPAQuery<T>(em, JPQLTemplates.DEFAULT);
+        return query.from(new PathBuilderFactory().create(entityClass)).where(where).fetch();
+    }
+
+    public <T extends Filterable> List<T> findAll(final Class<T> entityClass, String filter) {
+        JPAQuery<T> query = new JPAQuery<T>(em, JPQLTemplates.DEFAULT);
+        final BooleanBuilder where = NaturalQueryParser.parse(filter, entityClass);
+
         return query.from(new PathBuilderFactory().create(entityClass)).where(where).fetch();
     }
 

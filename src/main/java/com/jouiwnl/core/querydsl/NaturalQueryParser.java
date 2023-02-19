@@ -78,6 +78,7 @@ public class NaturalQueryParser {
         List<String> tokens = Arrays.stream(filter.split(" ")).filter(StringUtils::isNotBlank).collect(Collectors.toList());
         String field = tokens.get(0);
         String pathName = className + "." + field;
+
         List<String> expressionsString = possibleExpressions
                 .stream()
                 .map(Objects::toString)
