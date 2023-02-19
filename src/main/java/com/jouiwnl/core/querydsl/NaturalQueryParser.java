@@ -145,7 +145,7 @@ public class NaturalQueryParser {
     private static BooleanExpression getExpression(StringPath path, String operator, String value) {
         switch (operator) {
             case "=":
-                return wrapUnaccent(path).containsIgnoreCase(wrapUnaccent(value));
+                return wrapUnaccent(path).equalsIgnoreCase(wrapUnaccent(value));
             case "!=":
                 return wrapUnaccent(path).ne(wrapUnaccent(value));
             case ">":
@@ -156,6 +156,8 @@ public class NaturalQueryParser {
                 return wrapUnaccent(path).lt(wrapUnaccent(value));
             case "<=":
                 return wrapUnaccent(path).loe(wrapUnaccent(value));
+            case "like":
+                return wrapUnaccent(path).containsIgnoreCase(wrapUnaccent(value));
             case "in":
                 String[] values = value.split(",");
                 return wrapUnaccent(path).in(values);
