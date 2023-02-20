@@ -1,5 +1,6 @@
 package com.jouiwnl.core.querydsl;
 
+import com.jouiwnl.core.utils.MathUtils;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.*;
 import lombok.AllArgsConstructor;
@@ -111,7 +112,10 @@ public class NaturalQueryParser {
             return getExpression(
                     (DatePath) expression,
                     operator,
-                    Arrays.stream(value.split(",")).map(String::trim).map(LocalDate::parse).collect(Collectors.toList())
+                    Arrays.stream(value.split(","))
+                            .map(String::trim)
+                            .map(LocalDate::parse)
+                            .collect(Collectors.toList())
             );
         }
 
@@ -119,7 +123,10 @@ public class NaturalQueryParser {
             return getExpression(
                     (NumberPath) expression,
                     operator,
-                    Arrays.stream(value.split(",")).map(String::trim).map(NumberUtils::createNumber).collect(Collectors.toList())
+                    Arrays.stream(value.split(","))
+                            .map(String::trim)
+                            .map(MathUtils::createNumberOrNull)
+                            .collect(Collectors.toList())
             );
         }
 
@@ -127,7 +134,10 @@ public class NaturalQueryParser {
             return getExpression(
                     (EnumPath) expression,
                     operator,
-                    Arrays.stream(value.split(",")).map(String::trim).map(v -> Enum.valueOf(expression.getType(), v)).collect(Collectors.toList())
+                    Arrays.stream(value.split(","))
+                            .map(String::trim)
+                            .map(v -> Enum.valueOf(expression.getType(), v))
+                            .collect(Collectors.toList())
             );
         }
 
@@ -171,6 +181,11 @@ public class NaturalQueryParser {
 
     private static BooleanExpression getExpression(NumberPath path, String operator, List<Number> numberValues) {
         Number firstValue = numberValues.get(0);
+
+        if (firstValue == null) {
+            return null;
+        }
+
         switch (operator) {
             case "=":
                 return path.eq(firstValue);
