@@ -1,5 +1,7 @@
 package com.jouiwnl.core.repository;
 
+import com.jouiwnl.core.pageable.Page;
+import com.jouiwnl.core.pageable.Pageable;
 import com.jouiwnl.core.querydsl.Filterable;
 import com.jouiwnl.core.querydsl.NaturalQueryParser;
 import com.querydsl.core.BooleanBuilder;
@@ -44,6 +46,62 @@ public class BasicRepository {
         final BooleanBuilder where = NaturalQueryParser.parse(filter, entityClass);
 
         return query.from(new PathBuilderFactory().create(entityClass)).where(where).fetch();
+    }
+
+    public <T extends Filterable> Page<T> findAll(
+            final Class<T> entityClass,
+            final Pageable pageable,
+            final String filter) {
+
+        final BooleanBuilder where = NaturalQueryParser.parse(filter, entityClass);
+
+        JPAQuery<T> query = new JPAQuery<T>(em, JPQLTemplates.DEFAULT)
+                .from(new PathBuilderFactory().create(entityClass))
+                .where(where);
+
+        final int limit = pageable.getLimit();
+
+        int offset = pageable.getOffset();
+
+        final long total = query.fetchCount();
+
+        if (offset > total) {
+            offset = ((int) (total / limit)) * limit;
+        } else if (offset == total) {
+            offset = Math.max(offset - limit, 0);
+        }
+
+        query.offset(offset);
+        query.limit(limit);
+
+        return new Page<>(query.fetch(), pageable, total);
+    }
+
+    public <T> Page<T> findAll(
+            final Class<T> entityClass,
+            final Pageable pageable,
+            final Predicate... where) {
+
+        JPAQuery<T> query = new JPAQuery<T>(em, JPQLTemplates.DEFAULT)
+                .from(new PathBuilderFactory().create(entityClass))
+                .where(where);
+
+        final int limit = pageable.getLimit();
+
+        int offset = pageable.getOffset();
+
+        final long total = query.fetchCount();
+
+        if (offset > total) {
+            offset = ((int) (total / limit)) * limit;
+        } else if (offset == total) {
+            offset = Math.max(offset - limit, 0);
+        }
+
+        query.offset(offset);
+        query.limit(limit);
+
+        return new Page<>(query.fetch(), pageable, total);
     }
 
     public <T> T findOne(Class<T> entityClass, Predicate... where) {

@@ -3,7 +3,7 @@
 ## Features
 
 - [x] QueryDsl Parser to write filters in natural language;
-- [ ] Page implementation;
+- [x] Page implementation;
 - [x] DynamicDto builder to handle JSON responses;
 - [x] Global repository to handle CRUD operations;
 - [x] Something else!
